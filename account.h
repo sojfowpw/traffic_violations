@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QLineEdit>
+#include <QCryptographicHash>
 
 namespace Ui {
 class account;
@@ -31,6 +32,10 @@ private slots:
     void on_changePhone_2_clicked();
 
     void on_changePass_clicked();
+
+    void on_back_clicked();
+
+    void on_changePass_2_clicked();
 
 private:
     Ui::account *ui;

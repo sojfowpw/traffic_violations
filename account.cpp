@@ -8,6 +8,10 @@ account::account(QWidget *parent)
 {
     ui->setupUi(this);
     setWindowTitle("Профиль");
+
+    ui->oldPassLine->setEchoMode(QLineEdit::Password); // отображение пароля звездочками
+    ui->newPassLine->setEchoMode(QLineEdit::Password);
+
     ui->newTS->setVisible(false); // скрываем кнопки для изменения информации
     ui->newTSLine->setVisible(false);
     ui->changeTS_2->setVisible(false);
@@ -20,6 +24,7 @@ account::account(QWidget *parent)
     ui->newPassLabel->setVisible(false);
     ui->newPassLine->setVisible(false);
     ui->changePass_2->setVisible(false);
+    ui->back->setVisible(false);
 
     newTSLineEdit = ui->newTSLine;
     newPhoneLineEdit = ui->newPhoneLine;
@@ -140,8 +145,15 @@ void account::on_changePhone_2_clicked() // изменяем номер теле
 }
 
 
-void account::on_changePass_clicked()
+void account::on_changePass_clicked() // кнопка для вывода интерфейса смены пароля
 {
+    ui->newTS->setVisible(false);
+    ui->newTSLine->setVisible(false);
+    ui->changeTS_2->setVisible(false);
+    ui->newPhone->setVisible(false);
+    ui->newPhoneLine->setVisible(false);
+    ui->changePhone_2->setVisible(false);
+
     ui->changeTS->setVisible(false);
     ui->changePhone->setVisible(false);
     ui->oldPassLabel->setVisible(!ui->oldPassLabel->isVisible());
@@ -149,9 +161,62 @@ void account::on_changePass_clicked()
     ui->newPassLabel->setVisible(!ui->newPassLabel->isVisible());
     ui->newPassLine->setVisible(!ui->newPassLine->isVisible());
     ui->changePass_2->setVisible(!ui->changePass_2->isVisible());
+    ui->back->setVisible(!ui->back->isVisible());
+}
 
+
+void account::on_back_clicked() // кнопка отменить смену пароля
+{
+    ui->oldPassLabel->setVisible(false);
+    ui->oldPassLine->setVisible(false);
+    ui->newPassLabel->setVisible(false);
+    ui->newPassLine->setVisible(false);
+    ui->changePass_2->setVisible(false);
+    ui->back->setVisible(false);
+    ui->changeTS->setVisible(!ui->changeTS->isVisible());
+    ui->changePhone->setVisible(!ui->changePhone->isVisible());
+}
+
+
+void account::on_changePass_2_clicked() // сама смена пароля
+{
     QString oldPass = oldPassLineEdit->text();
     QString newPass = newPassLineEdit->text();
 
+    if(oldPass.isEmpty()) { // проверка на правильность ввода
+        QMessageBox::warning(this, "Ошибка", "<FONT COLOR='#000000'>Поле \"Старый пароль\" не может быть пустым</FONT>");
+        return;
+    }
+    if (oldPass.contains(QRegularExpression("['\"\\-\\-;\\*\\/]"))) {
+        QMessageBox::warning(this, "Ошибка", "<FONT COLOR='#000000'>Поле \"Старый пароль\" не должно содержать запрещённые символы: ' \" - ; / *</FONT>");
+        return;
+    }
+    if(newPass.isEmpty()) {
+        QMessageBox::warning(this, "Ошибка", "<FONT COLOR='#000000'>Поле \"Новый пароль\" не может быть пустым</FONT>");
+        return;
+    }
+    if (newPass.contains(QRegularExpression("['\"\\-\\-;\\*\\/]"))) {
+        QMessageBox::warning(this, "Ошибка", "<FONT COLOR='#000000'>Поле \"Новый пароль\" не должно содержать запрещённые символы: ' \" - ; / *</FONT>");
+        return;
+    }
+
+    QByteArray hashedPassword = QCryptographicHash::hash(oldPass.toUtf8(), QCryptographicHash::Sha256); // хэширование старого пароля
+    QSqlQuery query;
+    query.prepare("SELECT pass FROM owners WHERE phone = :phone");
+    query.bindValue(":phone", currentPhone);
+    query.exec();
+    query.next();
+    QString storedPasswordHash = query.value("pass").toString(); // получаем пароль пользователя
+    QByteArray storedHashBytes = QByteArray::fromHex(storedPasswordHash.toUtf8());
+    if (storedHashBytes != hashedPassword.toHex()) { // сравниваем пароли
+        QMessageBox::warning(this, "Ошибка", "<FONT COLOR='#000000'>Старый пароль введён неверно</FONT>");
+        return;
+    }
+
+    hashedPassword = QCryptographicHash::hash(newPass.toUtf8(), QCryptographicHash::Sha256); // хэшируем новый пароль для записи
+    query.prepare("UPDATE owners SET pass = :newPass WHERE phone = :phone");
+    query.bindValue(":newPass", hashedPassword.toHex());
+    query.bindValue(":phone", currentPhone);
+    query.exec();
 }
 

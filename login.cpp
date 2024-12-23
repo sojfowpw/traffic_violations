@@ -52,6 +52,10 @@ void login::logUser() {
         QMessageBox::warning(this, "Ошибка", "<FONT COLOR='#000000'>Поле \"Пароль\" не может быть пустым</FONT>");
         return;
     }
+    // if (pass.contains(QRegularExpression("['\"\\-\\-;\\*\\/]"))) {
+    //     QMessageBox::warning(this, "Ошибка", "<FONT COLOR='#000000'>Поле \"Пароль\" не должно содержать запрещённые символы: ' \" - ; / *</FONT>");
+    //     return;
+    // }
 
     QSqlQuery query;
     query.prepare("SELECT phone FROM owners WHERE phone = :phone"); // проверка на существование номера телефона
