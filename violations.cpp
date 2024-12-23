@@ -24,6 +24,9 @@ void violations::setInfo(int idUser, const QString &violation_type, const QStrin
                          int fine_amount, int id2) {
     userId = idUser;
     violationId2 = id2;
+    if (status == "В обработке" || status == "Оплачен") {
+        ui->changeStatus1->setVisible(false);
+    }
 
     ui->violationLabel->setText(violation_type);
     ui->violationLabel->setStyleSheet("font-family: 'Cantarell Regular'; color: black; font-size: 16pt;");
@@ -43,6 +46,9 @@ void violations::setInfo2(const QString &violation_type, const QString &violatio
         return;
     }
     violationId1 = id1;
+    if (status == "В обработке" || status == "Оплачен") {
+        ui->changeStatus2->setVisible(false);
+    }
 
     ui->groupBox_2->setVisible(!ui->groupBox_2->isVisible());
     ui->violationLabel_2->setText(violation_type);
@@ -126,6 +132,7 @@ void violations::on_changeStatus1_clicked()
     if (query.exec()) {
         ui->statusLabel->setText("В обработке");
         ui->statusLabel->setStyleSheet("font-family: 'Cantarell Regular'; color: black; font-size: 16pt;");
+        ui->changeStatus1->setVisible(false);
     }
 }
 
@@ -139,6 +146,7 @@ void violations::on_changeStatus2_clicked()
     if (query.exec()) {
         ui->statusLabel_2->setText("В обработке");
         ui->statusLabel_2->setStyleSheet("font-family: 'Cantarell Regular'; color: black; font-size: 16pt;");
+        ui->changeStatus2->setVisible(false);
     }
 }
 

@@ -22,10 +22,16 @@ private slots:
 
     void on_changeStatus_clicked();
 
+    void on_infoUsers_clicked();
+
 signals:
     void hideButtonInAllViolations();
 
     void sendTableInfo(int idUser, const QList<QVariantList> &violationsList);
+
+    void sendTableInfoViol(const QList<QVariantList> &violationsList);
+
+    void sendDrivers(const QList<QVariantList> &violationsList);
 
 private:
     Ui::admin *ui;
