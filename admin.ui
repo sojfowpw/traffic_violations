@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>allViolations</class>
- <widget class="QDialog" name="allViolations">
+ <class>admin</class>
+ <widget class="QDialog" name="admin">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -20,9 +20,9 @@
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>0</y>
+     <y>-10</y>
      <width>1641</width>
-     <height>91</height>
+     <height>101</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -45,50 +45,17 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>160</y>
-     <width>301</width>
-     <height>61</height>
+     <x>40</x>
+     <y>150</y>
+     <width>581</width>
+     <height>71</height>
     </rect>
    </property>
    <property name="styleSheet">
     <string notr="true">color: rgb(0, 0, 0);</string>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:28pt; font-weight:700;&quot;&gt;Штрафы&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-   </property>
-  </widget>
-  <widget class="QTableWidget" name="tableWidget">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>250</y>
-     <width>834</width>
-     <height>337</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="back">
-   <property name="geometry">
-    <rect>
-     <x>1380</x>
-     <y>220</y>
-     <width>161</width>
-     <height>61</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>20</pointsize>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">color: rgb(0, 0, 0);
-background-color: rgb(246, 97, 81);</string>
-   </property>
-   <property name="text">
-    <string>← Назад</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:28pt; font-weight:700;&quot;&gt;Добро пожаловать, сотрудник&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
   <widget class="QPushButton" name="returnToMain">
@@ -114,12 +81,12 @@ background-color: rgb(246, 97, 81);</string>
     <string>Выйти</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="backAdmin">
+  <widget class="QPushButton" name="infoViolations">
    <property name="geometry">
     <rect>
-     <x>1200</x>
-     <y>140</y>
-     <width>161</width>
+     <x>30</x>
+     <y>270</y>
+     <width>471</width>
      <height>61</height>
     </rect>
    </property>
@@ -134,7 +101,30 @@ background-color: rgb(246, 97, 81);</string>
 background-color: rgb(246, 97, 81);</string>
    </property>
    <property name="text">
-    <string>← Назад</string>
+    <string>Информация о всех штрафах</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="changeStatus">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>360</y>
+     <width>471</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>20</pointsize>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color: rgb(0, 0, 0);
+background-color: rgb(246, 97, 81);</string>
+   </property>
+   <property name="text">
+    <string>Обработка оплаченных штрафов</string>
    </property>
   </widget>
  </widget>

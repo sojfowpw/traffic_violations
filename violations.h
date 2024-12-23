@@ -16,9 +16,11 @@ public:
     ~violations();
 
 public slots:
-    void setInfo(int idUser, const QString &violation_type, const QString &violation_date, const QString &violation_loc, const QString &status, int fine_amount);
+    void setInfo(int idUser, const QString &violation_type, const QString &violation_date, const QString &violation_loc, const QString &status,
+                 int fine_amount, int id1);
 
-    void setInfo2(const QString &violation_type, const QString &violation_date, const QString &violation_loc, const QString &status, int fine_amount);
+    void setInfo2(const QString &violation_type, const QString &violation_date, const QString &violation_loc, const QString &status,
+                  int fine_amount, int id2);
 
 private slots:
     void on_returnToMain_clicked();
@@ -27,15 +29,23 @@ private slots:
 
     void on_infoViolation_clicked();
 
+    void on_changeStatus1_clicked();
+
+    void on_changeStatus2_clicked();
+
 signals:
     void sendUserInfo(const QString &name, const QString &surname, const QString &transport, int violations, const QString &phone);
 
     void sendTableInfo(int idUser, const QList<QVariantList> &violationsList);
 
+    void hideButtonInAllViolations();
+
 private:
     Ui::violations *ui;
 
     int userId;
+    int violationId1;
+    int violationId2;
 };
 
 #endif // VIOLATIONS_H

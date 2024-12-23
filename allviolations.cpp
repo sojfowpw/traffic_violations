@@ -2,6 +2,7 @@
 #include "ui_allviolations.h"
 #include "mainwindow.h"
 #include "account.h"
+#include "admin.h"
 
 allViolations::allViolations(QWidget *parent)
     : QDialog(parent)
@@ -70,5 +71,21 @@ void allViolations::on_back_clicked()
     acc->show();
     QObject::connect(this, &allViolations::sendUserInfo, acc, &account::setInfo); // связываем классы для передачи информации
     emit sendUserInfo(name, surname, transport, amount_fines, phone);
+}
+
+void allViolations::hideButton() {
+    ui->back->setVisible(false);
+}
+
+void allViolations::hideButton2() {
+    ui->backAdmin->setVisible(false);
+}
+
+
+void allViolations::on_backAdmin_clicked()
+{
+    hide();
+    admin *adminWindow = new admin(this);
+    adminWindow->show();
 }
 

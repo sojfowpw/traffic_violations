@@ -232,10 +232,11 @@ void account::on_goViolations_clicked() // информация о наруше�
     query.exec();
     query.next();
     int id_owner = query.value("id").toInt();
-    query.prepare("SELECT id_violation, violation_date, location, status, fine_amount FROM violations WHERE id_owner = :id_owner");
+    query.prepare("SELECT id, id_violation, violation_date, location, status, fine_amount FROM violations WHERE id_owner = :id_owner");
     query.bindValue(":id_owner", id_owner); // вытаскиваем информацию о нарушениях
     query.exec();
     query.next();
+    int id1 = query.value("id").toInt();
     int id_violation = query.value("id_violation").toInt();
     QString violation_date = query.value("violation_date").toString();
     QString location = query.value("location").toString();
@@ -254,8 +255,10 @@ void account::on_goViolations_clicked() // информация о наруше�
     QString status2;
     int fine_amount2;
     QString violation_type2;
+    int id2;
 
     if (query.next()) {
+        id2 = query.value("id").toInt();
         int id_violation2 = query.value("id_violation").toInt();
         violation_date2 = query.value("violation_date").toString();
         location2 = query.value("location").toString();
@@ -272,8 +275,8 @@ void account::on_goViolations_clicked() // информация о наруше�
     violations *infoViolation = new violations(this);
     infoViolation->show();
     QObject::connect(this, &account::sendUserInfo, infoViolation, &violations::setInfo); // связываем классы для передачи информации
-    emit sendUserInfo(id_owner, violation_type, violation_date, location, status, fine_amount);
+    emit sendUserInfo(id_owner, violation_type, violation_date, location, status, fine_amount, id1);
     QObject::connect(this, &account::sendUserInfo2, infoViolation, &violations::setInfo2); // связываем классы для передачи информации
-    emit sendUserInfo2(violation_type2, violation_date2, location2, status2, fine_amount2);
+    emit sendUserInfo2(violation_type2, violation_date2, location2, status2, fine_amount2, id2);
 }
 

@@ -20,8 +20,10 @@ violations::~violations()
 }
 
 
-void violations::setInfo(int idUser, const QString &violation_type, const QString &violation_date, const QString &violation_loc, const QString &status, int fine_amount) {
+void violations::setInfo(int idUser, const QString &violation_type, const QString &violation_date, const QString &violation_loc, const QString &status,
+                         int fine_amount, int id2) {
     userId = idUser;
+    violationId2 = id2;
 
     ui->violationLabel->setText(violation_type);
     ui->violationLabel->setStyleSheet("font-family: 'Cantarell Regular'; color: black; font-size: 16pt;");
@@ -35,10 +37,12 @@ void violations::setInfo(int idUser, const QString &violation_type, const QStrin
     ui->amountLabel->setStyleSheet("font-family: 'Cantarell Regular'; color: black; font-size: 16pt;");
 }
 
-void violations::setInfo2(const QString &violation_type, const QString &violation_date, const QString &violation_loc, const QString &status, int fine_amount) {
+void violations::setInfo2(const QString &violation_type, const QString &violation_date, const QString &violation_loc, const QString &status,
+                          int fine_amount, int id1) {
     if (violation_type.isEmpty()) {
         return;
     }
+    violationId1 = id1;
 
     ui->groupBox_2->setVisible(!ui->groupBox_2->isVisible());
     ui->violationLabel_2->setText(violation_type);
@@ -108,5 +112,33 @@ void violations::on_infoViolation_clicked()
     viol->show();
     QObject::connect(this, &violations::sendTableInfo, viol, &allViolations::setInfo);
     emit sendTableInfo(userId, violationsList);
+    connect(this, &violations::hideButtonInAllViolations, viol, &allViolations::hideButton2);
+    emit hideButtonInAllViolations();
+}
+
+
+void violations::on_changeStatus1_clicked()
+{
+    QSqlQuery query;
+    query.prepare("UPDATE violations SET status = :status WHERE id = :id");
+    query.bindValue(":status", "В обработке");
+    query.bindValue(":id", violationId2);
+    if (query.exec()) {
+        ui->statusLabel->setText("В обработке");
+        ui->statusLabel->setStyleSheet("font-family: 'Cantarell Regular'; color: black; font-size: 16pt;");
+    }
+}
+
+
+void violations::on_changeStatus2_clicked()
+{
+    QSqlQuery query;
+    query.prepare("UPDATE violations SET status = :status WHERE id = :id");
+    query.bindValue(":status", "В обработке");
+    query.bindValue(":id", violationId1);
+    if (query.exec()) {
+        ui->statusLabel_2->setText("В обработке");
+        ui->statusLabel_2->setStyleSheet("font-family: 'Cantarell Regular'; color: black; font-size: 16pt;");
+    }
 }
 

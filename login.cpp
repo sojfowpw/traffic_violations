@@ -2,6 +2,7 @@
 #include "ui_login.h"
 #include "mainwindow.h"
 #include "account.h"
+#include "admin.h"
 
 login::login(QWidget *parent)
     : QDialog(parent)
@@ -76,6 +77,12 @@ void login::logUser() {
     QByteArray storedHashBytes = QByteArray::fromHex(storedPasswordHash.toUtf8());
     if (storedHashBytes != hashedPassword.toHex()) { // сравниваем пароли
         QMessageBox::warning(this, "Ошибка", "<FONT COLOR='#000000'>Неверный пароль</FONT>");
+        return;
+    }
+    if (phone == "+79130123456") {
+        hide();
+        admin *adminWimdow = new admin(this);
+        adminWimdow->show();
         return;
     }
 

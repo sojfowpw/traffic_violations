@@ -45,6 +45,8 @@ else()
             account.h account.cpp account.ui
             violations.h violations.cpp violations.ui
             allviolations.h allviolations.cpp allviolations.ui
+            admin.h admin.cpp admin.ui
+            changestatusadmin.h changestatusadmin.cpp changestatusadmin.ui
         )
     endif()
 endif()
