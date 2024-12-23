@@ -41,7 +41,7 @@ private slots:
     void on_goViolations_clicked();
 
 signals:
-    void sendUserInfo(const QString &violation_type, const QString &violation_date, const QString &violation_loc, const QString &status, int fine_amount);
+    void sendUserInfo(int idUser, const QString &violation_type, const QString &violation_date, const QString &violation_loc, const QString &status, int fine_amount);
 
     void sendUserInfo2(const QString &violation_type, const QString &violation_date, const QString &violation_loc, const QString &status, int fine_amount);
 

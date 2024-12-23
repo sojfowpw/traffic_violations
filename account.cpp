@@ -154,6 +154,7 @@ void account::on_changePass_clicked() // кнопка для вывода инт
     ui->newPhone->setVisible(false);
     ui->newPhoneLine->setVisible(false);
     ui->changePhone_2->setVisible(false);
+    ui->goViolations->setVisible(false);
 
     ui->changeTS->setVisible(false);
     ui->changePhone->setVisible(false);
@@ -176,6 +177,7 @@ void account::on_back_clicked() // кнопка отменить смену па
     ui->back->setVisible(false);
     ui->changeTS->setVisible(!ui->changeTS->isVisible());
     ui->changePhone->setVisible(!ui->changePhone->isVisible());
+    ui->goViolations->setVisible(!ui->goViolations->isVisible());
 }
 
 
@@ -270,7 +272,7 @@ void account::on_goViolations_clicked() // информация о наруше�
     violations *infoViolation = new violations(this);
     infoViolation->show();
     QObject::connect(this, &account::sendUserInfo, infoViolation, &violations::setInfo); // связываем классы для передачи информации
-    emit sendUserInfo(violation_type, violation_date, location, status, fine_amount);
+    emit sendUserInfo(id_owner, violation_type, violation_date, location, status, fine_amount);
     QObject::connect(this, &account::sendUserInfo2, infoViolation, &violations::setInfo2); // связываем классы для передачи информации
     emit sendUserInfo2(violation_type2, violation_date2, location2, status2, fine_amount2);
 }

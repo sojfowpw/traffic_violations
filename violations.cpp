@@ -2,6 +2,7 @@
 #include "ui_violations.h"
 #include "mainwindow.h"
 #include "account.h"
+#include "allviolations.h"
 
 violations::violations(QWidget *parent)
     : QDialog(parent)
@@ -19,7 +20,9 @@ violations::~violations()
 }
 
 
-void violations::setInfo(const QString &violation_type, const QString &violation_date, const QString &violation_loc, const QString &status, int fine_amount) {
+void violations::setInfo(int idUser, const QString &violation_type, const QString &violation_date, const QString &violation_loc, const QString &status, int fine_amount) {
+    userId = idUser;
+
     ui->violationLabel->setText(violation_type);
     ui->violationLabel->setStyleSheet("font-family: 'Cantarell Regular'; color: black; font-size: 16pt;");
     ui->dateLabel->setText(violation_date);
@@ -61,8 +64,49 @@ void violations::on_returnToMain_clicked()
 
 void violations::on_back_clicked() // вернуться к профилю
 {
+    QSqlQuery query;
+    query.prepare("SELECT name, surname, phone, amount_fines, id_vehicle FROM owners WHERE id = :id");
+    query.bindValue(":id", userId); // получаем данные пользователя по айди
+    query.exec();
+    query.next();
+    QString name = query.value("name").toString();
+    QString surname = query.value("surname").toString();
+    QString phone = query.value("phone").toString();
+    int amount_fines = query.value("amount_fines").toInt();
+    int id_vehicle = query.value("id_vehicle").toInt();
+    query.prepare("SELECT license_plate FROM vehicles WHERE id = :id"); // получаем номер ТС
+    query.bindValue(":id", id_vehicle);
+    query.exec();
+    query.next();
+    QString transport = query.value("license_plate").toString();
+
     hide();
     account *acc = new account(this);
     acc->show();
+    QObject::connect(this, &violations::sendUserInfo, acc, &account::setInfo); // связываем классы для передачи информации
+    emit sendUserInfo(name, surname, transport, amount_fines, phone);
+}
+
+
+void violations::on_infoViolation_clicked()
+{
+    QList<QVariantList> violationsList;
+    QSqlQuery query;
+    query.prepare("SELECT violation_type, monetary_fine FROM violation_types");
+    query.exec();
+    while (query.next()) {
+        QString violation_type = query.value("violation_type").toString();
+        int monetary_fine = query.value("monetary_fine").toInt();
+        QVariantList violationData;
+        violationData << violation_type << monetary_fine;
+        violationsList.append(violationData);
+    }
+
+
+    hide();
+    allViolations *viol = new allViolations(this);
+    viol->show();
+    QObject::connect(this, &violations::sendTableInfo, viol, &allViolations::setInfo);
+    emit sendTableInfo(userId, violationsList);
 }
 

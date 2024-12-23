@@ -44,6 +44,7 @@ else()
             login.h login.cpp login.ui
             account.h account.cpp account.ui
             violations.h violations.cpp violations.ui
+            allviolations.h allviolations.cpp allviolations.ui
         )
     endif()
 endif()
