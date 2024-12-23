@@ -1,6 +1,7 @@
 #include "account.h"
 #include "ui_account.h"
 #include "mainwindow.h"
+#include "violations.h"
 
 account::account(QWidget *parent)
     : QDialog(parent)
@@ -218,5 +219,59 @@ void account::on_changePass_2_clicked() // сама смена пароля
     query.bindValue(":newPass", hashedPassword.toHex());
     query.bindValue(":phone", currentPhone);
     query.exec();
+}
+
+
+void account::on_goViolations_clicked() // информация о нарушениях
+{
+    QSqlQuery query; // вытаскиваем айди пользователя
+    query.prepare("SELECT id FROM owners WHERE phone = :phone");
+    query.bindValue(":phone", currentPhone);
+    query.exec();
+    query.next();
+    int id_owner = query.value("id").toInt();
+    query.prepare("SELECT id_violation, violation_date, location, status, fine_amount FROM violations WHERE id_owner = :id_owner");
+    query.bindValue(":id_owner", id_owner); // вытаскиваем информацию о нарушениях
+    query.exec();
+    query.next();
+    int id_violation = query.value("id_violation").toInt();
+    QString violation_date = query.value("violation_date").toString();
+    QString location = query.value("location").toString();
+    QString status = query.value("status").toString();
+    int fine_amount = query.value("fine_amount").toInt();
+    QSqlQuery queryType;
+    queryType.prepare("SELECT violation_type FROM violation_types WHERE id = :id"); // вытаскиваем описание нарушения
+    queryType.bindValue(":id", id_violation);
+    queryType.exec();
+    queryType.next();
+    QString violation_type = queryType.value("violation_type").toString();
+
+
+    QString violation_date2; // вытаскиваем второе нарушение
+    QString location2;
+    QString status2;
+    int fine_amount2;
+    QString violation_type2;
+
+    if (query.next()) {
+        int id_violation2 = query.value("id_violation").toInt();
+        violation_date2 = query.value("violation_date").toString();
+        location2 = query.value("location").toString();
+        status2 = query.value("status").toString();
+        fine_amount2 = query.value("fine_amount").toInt();
+        queryType.prepare("SELECT violation_type FROM violation_types WHERE id = :id"); // вытаскиваем описание нарушения
+        queryType.bindValue(":id", id_violation2);
+        queryType.exec();
+        queryType.next();
+        violation_type2 = queryType.value("violation_type").toString();
+    }
+
+    hide();
+    violations *infoViolation = new violations(this);
+    infoViolation->show();
+    QObject::connect(this, &account::sendUserInfo, infoViolation, &violations::setInfo); // связываем классы для передачи информации
+    emit sendUserInfo(violation_type, violation_date, location, status, fine_amount);
+    QObject::connect(this, &account::sendUserInfo2, infoViolation, &violations::setInfo2); // связываем классы для передачи информации
+    emit sendUserInfo2(violation_type2, violation_date2, location2, status2, fine_amount2);
 }
 

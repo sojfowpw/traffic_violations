@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QLineEdit>
 #include <QCryptographicHash>
+#include <QDebug>
 
 namespace Ui {
 class account;
@@ -36,6 +37,13 @@ private slots:
     void on_back_clicked();
 
     void on_changePass_2_clicked();
+
+    void on_goViolations_clicked();
+
+signals:
+    void sendUserInfo(const QString &violation_type, const QString &violation_date, const QString &violation_loc, const QString &status, int fine_amount);
+
+    void sendUserInfo2(const QString &violation_type, const QString &violation_date, const QString &violation_loc, const QString &status, int fine_amount);
 
 private:
     Ui::account *ui;

@@ -43,6 +43,7 @@ else()
             infotransport.h infotransport.cpp infotransport.ui
             login.h login.cpp login.ui
             account.h account.cpp account.ui
+            violations.h violations.cpp violations.ui
         )
     endif()
 endif()
