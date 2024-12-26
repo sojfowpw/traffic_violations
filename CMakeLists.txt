@@ -48,6 +48,7 @@ else()
             admin.h admin.cpp admin.ui
             changestatusadmin.h changestatusadmin.cpp changestatusadmin.ui
             drivers.h drivers.cpp drivers.ui
+            infodrivers.h infodrivers.cpp infodrivers.ui
         )
     endif()
 endif()

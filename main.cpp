@@ -17,10 +17,10 @@ int main(int argc, char *argv[])
     database.setPort(5432);
 
     if (database.open()) {
-        qDebug() << "Успешно.";
+        qDebug() << "Успешное подключение.";
     }
     else {
-        qDebug() << "Отклонено.";
+        qDebug() << "Подключение не удалось.";
     }
     return a.exec();
 }

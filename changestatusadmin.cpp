@@ -101,5 +101,49 @@ void changeStatusAdmin::on_save_clicked()
     query.bindValue(":id_owner", ownerId);
     query.bindValue(":id_violation", violationId);
     query.exec();
+    qDebug() << "Update выполнен.";
+
+    QList<QVariantList> violationsList;
+    query.prepare("SELECT id_violation, id_owner, status FROM violations WHERE status = :status");
+    query.bindValue(":status", "В обработке");
+    query.exec();
+    while (query.next()) {
+        int id_violation = query.value("id_violation").toInt();
+        QSqlQuery queryInfo;
+        queryInfo.prepare("SELECT violation_type FROM violation_types WHERE id = :id");
+        queryInfo.bindValue(":id", id_violation);
+        queryInfo.exec();
+        queryInfo.next();
+        QString violation_type = queryInfo.value("violation_type").toString(); // получаем тип нарушения
+
+        int id_owner = query.value("id_owner").toInt();
+        queryInfo.prepare("SELECT name, surname FROM owners WHERE id = :id");
+        queryInfo.bindValue(":id", id_owner);
+        queryInfo.exec();
+        queryInfo.next();
+        QString name = queryInfo.value("name").toString(); // имя
+        QString surname = queryInfo.value("surname").toString(); // фамилия
+        QString status = query.value("status").toString();
+
+        QVariantList violationData;
+        violationData << name << surname << violation_type << status;
+        violationsList.append(violationData);
+    }
+    ui->tableWidget->clearContents();
+    ui->tableWidget->setRowCount(0);
+    ui->tableWidget->setColumnWidth(0, 200);
+    ui->tableWidget->setColumnWidth(1, 200);
+    ui->tableWidget->setColumnWidth(2, 600);
+    ui->tableWidget->setColumnWidth(3, 200);
+    ui->tableWidget->setStyleSheet("QTableWidget {font-size: 18pt; color: black;}");
+
+    for (const QVariantList &violationData : violationsList) {
+        int row = ui->tableWidget->rowCount();
+        ui->tableWidget->insertRow(row);
+        ui->tableWidget->setItem(row, 0, new QTableWidgetItem(violationData[0].toString())); // имя
+        ui->tableWidget->setItem(row, 1, new QTableWidgetItem(violationData[1].toString())); // фамилия
+        ui->tableWidget->setItem(row, 2, new QTableWidgetItem(violationData[2].toString()));
+        ui->tableWidget->setItem(row, 3, new QTableWidgetItem(violationData[3].toString()));
+    }
 }
 

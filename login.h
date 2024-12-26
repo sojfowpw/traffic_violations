@@ -26,7 +26,7 @@ private slots:
     void on_continueReg_clicked();
 
 signals:
-    void sendUserInfo(const QString &name, const QString &surname, const QString &transport, int violations, const QString &phone);
+    void sendUserInfo(int idUser, const QString &name, const QString &surname, const QList<QVariantList> &licenseList, int violations, const QString &phone);
 
 private:
     Ui::login *ui;

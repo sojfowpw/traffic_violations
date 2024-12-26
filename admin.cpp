@@ -4,6 +4,7 @@
 #include "allviolations.h"
 #include "changestatusadmin.h"
 #include "drivers.h"
+#include "infodrivers.h"
 
 admin::admin(QWidget *parent)
     : QDialog(parent)
@@ -93,24 +94,24 @@ void admin::on_infoUsers_clicked()
 {
     QList<QVariantList> violationsList;
     QSqlQuery query;
-    query.prepare("SELECT name, surname, amount_fines, id_vehicle FROM owners WHERE phone != :phone");
-    query.bindValue(":phone", "+79130123456");
+    query.prepare("SELECT id, name, surname FROM owners WHERE phone != :phone");
+    query.bindValue(":phone", "+7 (913) 012-34-56");
     query.exec();
     while (query.next()) {
         QString name = query.value("name").toString();
         QString surname = query.value("surname").toString();
-        int amount_fines = query.value("amount_fines").toInt();
-        int id_vehicle = query.value("id_vehicle").toInt();
+        int userId = query.value("id").toInt();
 
         QSqlQuery queryInfo;
-        queryInfo.prepare("SELECT license_plate FROM vehicles WHERE id = :id");
-        queryInfo.bindValue(":id", id_vehicle);
+        queryInfo.prepare("SELECT id, license_plate FROM vehicles WHERE id_owner = :id_owner");
+        queryInfo.bindValue(":id_owner", userId);
         queryInfo.exec();
-        queryInfo.next();
-        QString license_plate = queryInfo.value("license_plate").toString();
-        QVariantList violationData;
-        violationData << name << surname << amount_fines << license_plate;
-        violationsList.append(violationData);
+        while (queryInfo.next()) {
+            QString license_plate = queryInfo.value("license_plate").toString();
+            QVariantList violationData;
+            violationData << name << surname << license_plate;
+            violationsList.append(violationData);
+        }
     }
 
     hide();
@@ -118,5 +119,45 @@ void admin::on_infoUsers_clicked()
     driver->show();
     QObject::connect(this, &admin::sendDrivers, driver, &drivers::setInfo);
     emit sendDrivers(violationsList);
+}
+
+
+void admin::on_infoDrivers_clicked()
+{
+    QList<QVariantList> violationsList;
+    QSqlQuery query;
+    query.prepare("SELECT id, name, surname FROM owners WHERE phone != :phone");
+    query.bindValue(":phone", "+7 (913) 012-34-56");
+    query.exec();
+    while (query.next()) {
+        QString name = query.value("name").toString();
+        QString surname = query.value("surname").toString();
+        int userId = query.value("id").toInt();
+
+        QSqlQuery queryInfo;
+        queryInfo.prepare("SELECT id_violation, status FROM violations WHERE id_owner = :id_owner");
+        queryInfo.bindValue(":id_owner", userId);
+        queryInfo.exec();
+        while (queryInfo.next()) {
+            QString status = queryInfo.value("status").toString();
+            int id_violation = queryInfo.value("id_violation").toInt();
+            QSqlQuery queryViol;
+            queryViol.prepare("SELECT violation_type FROM violation_types WHERE id = :id");
+            queryViol.bindValue(":id", id_violation);
+            queryViol.exec();
+            queryViol.next();
+            QString violation = queryViol.value("violation_type").toString();
+            QVariantList violationData;
+            violationData << name << surname << violation << status;
+            violationsList.append(violationData);
+        }
+    }
+
+
+    hide();
+    infoDrivers *info = new infoDrivers(this);
+    info->show();
+    QObject::connect(this, &admin::sendDriversInfo, info, &infoDrivers::setInfo);
+    emit sendDriversInfo(violationsList);
 }
 

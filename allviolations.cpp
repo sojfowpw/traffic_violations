@@ -51,7 +51,7 @@ void allViolations::on_returnToMain_clicked()
 void allViolations::on_back_clicked()
 {
     QSqlQuery query;
-    query.prepare("SELECT name, surname, phone, amount_fines, id_vehicle FROM owners WHERE id = :id");
+    query.prepare("SELECT name, surname, phone, amount_fines FROM owners WHERE id = :id");
     query.bindValue(":id", userId); // получаем данные пользователя по айди
     query.exec();
     query.next();
@@ -59,18 +59,23 @@ void allViolations::on_back_clicked()
     QString surname = query.value("surname").toString();
     QString phone = query.value("phone").toString();
     int amount_fines = query.value("amount_fines").toInt();
-    int id_vehicle = query.value("id_vehicle").toInt();
-    query.prepare("SELECT license_plate FROM vehicles WHERE id = :id"); // получаем номер ТС
-    query.bindValue(":id", id_vehicle);
+
+    QList<QVariantList> licenseList;
+    query.prepare("SELECT license_plate FROM vehicles WHERE id_owner = :id_owner"); // получаем номер ТС
+    query.bindValue(":id_owner", userId);
     query.exec();
-    query.next();
-    QString transport = query.value("license_plate").toString();
+    while (query.next()) {
+        QString transport = query.value("license_plate").toString();
+        QVariantList licenseData;
+        licenseData << transport;
+        licenseList.append(licenseData);
+    }
 
     hide();
     account *acc = new account(this);
     acc->show();
     QObject::connect(this, &allViolations::sendUserInfo, acc, &account::setInfo); // связываем классы для передачи информации
-    emit sendUserInfo(name, surname, transport, amount_fines, phone);
+    emit sendUserInfo(userId, name, surname, licenseList, amount_fines, phone);
 }
 
 void allViolations::hideButton() {

@@ -15,6 +15,9 @@ login::login(QWidget *parent)
 
     phoneLineEdit = ui->phoneLine; // переменные для названия полей для ввода
     passLineEdit = ui->passLine;
+
+    phoneLineEdit->setInputMask("+7 (000) 000-00-00");
+    phoneLineEdit->setPlaceholderText("+7 (___) ___-__-__");
 }
 
 login::~login()
@@ -44,7 +47,7 @@ void login::logUser() {
         QMessageBox::warning(this, "Ошибка", "<FONT COLOR='#000000'>Поле \"Номер телефона\" не может быть пустым</FONT>");
         return;
     }
-    if (!phone.contains(QRegularExpression("^\\+7\\d{10}$"))) {
+    if (!phone.contains(QRegularExpression("^\\+7 \\([0-9]{3}\\) [0-9]{3}-[0-9]{2}-[0-9]{2}$"))) {
         QMessageBox::warning(this, "Ошибка", "<FONT COLOR='#000000'>Поле \"Номер телефона\" заполнено некорректно</FONT>");
         return;
     }
@@ -79,31 +82,36 @@ void login::logUser() {
         QMessageBox::warning(this, "Ошибка", "<FONT COLOR='#000000'>Неверный пароль</FONT>");
         return;
     }
-    if (phone == "+79130123456") {
+    if (phone == "+7 (913) 012-34-56") {
         hide();
         admin *adminWimdow = new admin(this);
         adminWimdow->show();
         return;
     }
 
-    query.prepare("SELECT name, surname, amount_fines, id_vehicle FROM owners WHERE id = :id");
+    query.prepare("SELECT name, surname, amount_fines FROM owners WHERE id = :id");
     query.bindValue(":id", idUser); // получаем данные пользователя по айди
     query.exec();
     query.next();
     QString name = query.value("name").toString();
     QString surname = query.value("surname").toString();
     int amount_fines = query.value("amount_fines").toInt();
-    int id_vehicle = query.value("id_vehicle").toInt();
-    query.prepare("SELECT license_plate FROM vehicles WHERE id = :id"); // получаем номер ТС
-    query.bindValue(":id", id_vehicle);
+
+    QList<QVariantList> licenseList;
+    query.prepare("SELECT license_plate FROM vehicles WHERE id_owner = :id_owner"); // получаем номер ТС
+    query.bindValue(":id_owner", idUser);
     query.exec();
-    query.next();
-    QString transport = query.value("license_plate").toString();
+    while (query.next()) {
+        QString transport = query.value("license_plate").toString();
+        QVariantList licenseData;
+        licenseData << transport;
+        licenseList.append(licenseData);
+    }
 
     hide();
     account *acc = new account(this); // переходим в личный аккаунт
     acc->show();
     QObject::connect(this, &login::sendUserInfo, acc, &account::setInfo); // связываем классы для передачи информации
-    emit sendUserInfo(name, surname, transport, amount_fines, phone);
+    emit sendUserInfo(idUser, name, surname, licenseList, amount_fines, phone);
 }
 

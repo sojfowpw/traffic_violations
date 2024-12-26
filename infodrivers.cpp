@@ -1,32 +1,32 @@
-#include "drivers.h"
-#include "ui_drivers.h"
+#include "infodrivers.h"
+#include "ui_infodrivers.h"
 #include "mainwindow.h"
 #include "admin.h"
 
-drivers::drivers(QWidget *parent)
+infoDrivers::infoDrivers(QWidget *parent)
     : QDialog(parent)
-    , ui(new Ui::drivers)
+    , ui(new Ui::infoDrivers)
 {
     ui->setupUi(this);
     setWindowTitle("Водители");
-
-    ui->tableWidget->setColumnCount(3);
-    ui->tableWidget->setHorizontalHeaderLabels({"Имя", "Фамилия", "Номер ТС"});
+    ui->tableWidget->setColumnCount(4);
+    ui->tableWidget->setHorizontalHeaderLabels({"Имя", "Фамилия", "Тип нарушения", "Статус"});
     ui->tableWidget->horizontalHeader()->setStyleSheet("QHeaderView::section {font-size: 18pt; background-color: rgb(246, 97, 81); color: black;}");
     ui->tableWidget->verticalHeader()->setStyleSheet("QHeaderView::section {font-size: 18pt; background-color: rgb(246, 97, 81); color: black;}");
 }
 
-drivers::~drivers()
+infoDrivers::~infoDrivers()
 {
     delete ui;
 }
 
-void drivers::setInfo(const QList<QVariantList> &violationsList) {
+void infoDrivers::setInfo(const QList<QVariantList> &violationsList) {
     ui->tableWidget->clearContents();
     ui->tableWidget->setRowCount(0);
-    ui->tableWidget->setColumnWidth(0, 350);
-    ui->tableWidget->setColumnWidth(1, 350);
-    ui->tableWidget->setColumnWidth(2, 320);
+    ui->tableWidget->setColumnWidth(0, 200);
+    ui->tableWidget->setColumnWidth(1, 200);
+    ui->tableWidget->setColumnWidth(2, 500);
+    ui->tableWidget->setColumnWidth(3, 200);
     ui->tableWidget->setStyleSheet("QTableWidget {font-size: 18pt; color: black;}");
 
     for (const QVariantList &violationData : violationsList) {
@@ -35,11 +35,12 @@ void drivers::setInfo(const QList<QVariantList> &violationsList) {
 
         ui->tableWidget->setItem(row, 0, new QTableWidgetItem(violationData[0].toString())); // имя
         ui->tableWidget->setItem(row, 1, new QTableWidgetItem(violationData[1].toString())); // фамилия
-        ui->tableWidget->setItem(row, 2, new QTableWidgetItem(violationData[2].toString())); // номер тс
+        ui->tableWidget->setItem(row, 2, new QTableWidgetItem(violationData[2].toString())); // нарушение
+        ui->tableWidget->setItem(row, 3, new QTableWidgetItem(violationData[3].toString())); // статус
     }
 }
 
-void drivers::on_returnToMain_clicked()
+void infoDrivers::on_returnToMain_clicked()
 {
     hide();
     MainWindow *mainWindow = new MainWindow(this);
@@ -47,10 +48,10 @@ void drivers::on_returnToMain_clicked()
 }
 
 
-void drivers::on_back_clicked()
+void infoDrivers::on_back_clicked()
 {
     hide();
-    admin *adminWindow = new admin(this);
-    adminWindow->show();
+    admin *adm = new admin(this);
+    adm->show();
 }
 

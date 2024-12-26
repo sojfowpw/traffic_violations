@@ -20,6 +20,9 @@ registration::registration(QWidget *parent)
     transportLineEdit = ui->transportLine;
     pass1LineEdit = ui->pass1Line;
     pass2LineEdit = ui->pass2Line;
+
+    phoneLineEdit->setInputMask("+7 (000) 000-00-00");
+    phoneLineEdit->setPlaceholderText("+7 (___) ___-__-__");
 }
 
 registration::~registration()
@@ -78,7 +81,7 @@ void registration::registrUser() { // функционал регистраци�
         QMessageBox::warning(this, "Ошибка", "<FONT COLOR='#000000'>Поле \"Номер телефона\" не может быть пустым</FONT>");
         return;
     }
-    if (!phone.contains(QRegularExpression("^\\+7\\d{10}$"))) {
+    if (!phone.contains(QRegularExpression("^\\+7 \\([0-9]{3}\\) [0-9]{3}-[0-9]{2}-[0-9]{2}$"))) {
         QMessageBox::warning(this, "Ошибка", "<FONT COLOR='#000000'>Поле \"Номер телефона\" заполнено некорректно</FONT>");
         return;
     }
@@ -125,61 +128,61 @@ void registration::registrUser() { // функционал регистраци�
         return;
     }
 
-    // создание запроса на добавление номера ТС
-    query.prepare("INSERT INTO vehicles (license_plate) VALUES (:license_plate)");
-    query.bindValue(":license_plate", transport);
-    query.exec();
-    QVariant lastInsertId = query.lastInsertId(); // id транспорта
-
     // создание запроса на добавление владельца
-    query.prepare("INSERT INTO owners (name, surname, phone, amount_fines, pass, id_vehicle) VALUES (:name, :surname, :phone, :amount_fines,"
-                  " :pass, :id_vehicle)");
+    query.prepare("INSERT INTO owners (name, surname, phone, amount_fines, pass) VALUES (:name, :surname, :phone, :amount_fines, :pass)");
     query.bindValue(":name", name);
     query.bindValue(":surname", surname);
     query.bindValue(":phone", phone);
-    int amount = QRandomGenerator::global()->bounded(1, 3); // рандомное количество штрафов
-    query.bindValue(":amount_fines", amount);
+    query.bindValue(":amount_fines", 1);
     QByteArray hashedPassword = QCryptographicHash::hash(pass1.toUtf8(), QCryptographicHash::Sha256);
     query.bindValue(":pass", hashedPassword.toHex()); // пароль захеширован с помощью SHA-256
-    query.bindValue(":id_vehicle", lastInsertId);
     query.exec();
-    lastInsertId = query.lastInsertId(); // id владельца
+    qDebug() << "Insert выполнен.";
+    QVariant lastInsertId = query.lastInsertId(); // id владельца
+
+    // создание запроса на добавление номера ТС
+    query.prepare("INSERT INTO vehicles (license_plate, id_owner) VALUES (:license_plate, :id_onwer)");
+    query.bindValue(":license_plate", transport);
+    query.bindValue(":id_onwer", lastInsertId);
+    query.exec();
+    qDebug() << "Insert выполнен.";
+    QVariant lastInsertIdVehicle = query.lastInsertId();
 
     // создание запроса на добавление самих нарушений
     QDate startDay(2024, 11, 1); // диапазон дат
     QDate endDay(2024, 12, 22);
     int daysRange = startDay.daysTo(endDay); // количество дней в диапазоне
-    for (int i = 0; i < amount; i++) {
-        query.prepare("INSERT INTO violations (id_violation, violation_date, location, id_owner, id_camera, status, fine_amount) VALUES"
-                      "(:id_violation, :violation_date, :location, :id_owner, :id_camera, :status, :fine_amount)");
-        int violation = QRandomGenerator::global()->bounded(1, 11);
-        query.bindValue(":id_violation", violation); // получение типа нарушения и штрафа за него
-        QSqlQuery queryViolation;
-        queryViolation.prepare("SELECT monetary_fine FROM violation_types WHERE id = :id");
-        queryViolation.bindValue(":id", violation);
-        queryViolation.exec();
-        queryViolation.next();
-        int fine_amount = queryViolation.value("monetary_fine").toInt();
-        query.bindValue(":fine_amount", fine_amount);
+    query.prepare("INSERT INTO violations (id_violation, violation_date, location, id_owner, id_camera, id_vehicle, status, fine_amount) VALUES"
+                  "(:id_violation, :violation_date, :location, :id_owner, :id_camera, :id_vehicle, :status, :fine_amount)");
+    int violation = QRandomGenerator::global()->bounded(1, 11);
+    query.bindValue(":id_violation", violation); // получение типа нарушения и штрафа за него
+    QSqlQuery queryViolation;
+    queryViolation.prepare("SELECT monetary_fine FROM violation_types WHERE id = :id");
+    queryViolation.bindValue(":id", violation);
+    queryViolation.exec();
+    qDebug() << "Insert выполнен.";
+    queryViolation.next();
+    int fine_amount = queryViolation.value("monetary_fine").toInt();
+    query.bindValue(":fine_amount", fine_amount);
 
-        int randomDays = QRandomGenerator::global()->bounded(daysRange + 1); // количество дней
-        QDate randomDate = startDay.addDays(randomDays); // рандомная дата
-        QString violation_date = randomDate.toString("dd.MM.yyyy"); // перевод в строку
-        query.bindValue(":violation_date", violation_date);
-        query.bindValue(":id_owner", lastInsertId);
+    int randomDays = QRandomGenerator::global()->bounded(daysRange + 1); // количество дней
+    QDate randomDate = startDay.addDays(randomDays); // рандомная дата
+    QString violation_date = randomDate.toString("dd.MM.yyyy"); // перевод в строку
+    query.bindValue(":violation_date", violation_date);
+    query.bindValue(":id_owner", lastInsertIdVehicle);
 
-        int randomCamera = QRandomGenerator::global()->bounded(1, 11); // случаный номер камеры
-        query.bindValue(":id_camera", randomCamera);
-        QSqlQuery queryCamera;
-        queryCamera.prepare("SELECT location FROM cameras WHERE id = :id");
-        queryCamera.bindValue(":id", randomCamera);
-        queryCamera.exec();
-        queryCamera.next();
-        QString location = queryCamera.value("location").toString(); // адрес камеры
-        query.bindValue(":location", location);
-        query.bindValue(":status", "Не оплачен");
-        query.exec();
-    }
+    int randomCamera = QRandomGenerator::global()->bounded(1, 11); // случаный номер камеры
+    query.bindValue(":id_camera", randomCamera);
+    QSqlQuery queryCamera;
+    queryCamera.prepare("SELECT location FROM cameras WHERE id = :id");
+    queryCamera.bindValue(":id", randomCamera);
+    queryCamera.exec();
+    queryCamera.next();
+    QString location = queryCamera.value("location").toString(); // адрес камеры
+    query.bindValue(":location", location);
+    query.bindValue(":status", "Не оплачен");
+    query.bindValue(":id_vehicle", lastInsertId);
+    query.exec();
 
     //переход к окну входа
     hide();

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>drivers</class>
- <widget class="QDialog" name="drivers">
+ <class>infoDrivers</class>
+ <widget class="QDialog" name="infoDrivers">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -101,16 +101,16 @@ background-color: rgb(246, 97, 81);</string>
     <string notr="true">color: rgb(0, 0, 0);</string>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:28pt; font-weight:700;&quot;&gt;Информация о ТС: &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:28pt; font-weight:700;&quot;&gt;Информация о водителях: &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
   <widget class="QTableWidget" name="tableWidget">
    <property name="geometry">
     <rect>
-     <x>40</x>
+     <x>50</x>
      <y>250</y>
-     <width>1020</width>
-     <height>541</height>
+     <width>1131</width>
+     <height>511</height>
     </rect>
    </property>
   </widget>
